@@ -126,7 +126,7 @@ impl REPL for REPLImpl {
 
         // Check that the entry is a record, which is a precondition of transform_inner
         match term.as_ref() {
-            Term::Record(_) | Term::RecRecord(_) => (),
+            Term::Record(..) | Term::RecRecord(..) => (),
             _ => {
                 return Err(Error::EvalError(EvalError::Other(
                     String::from("load: expected a record"),
@@ -420,7 +420,7 @@ pub mod rustyline_frontend {
                     let result = match cmd {
                         Ok(Command::Load(path)) => {
                             repl.load(&path).map(|term| match term.as_ref() {
-                                Term::Record(map) | Term::RecRecord(map) => {
+                                Term::Record(map, _) | Term::RecRecord(map, _) => {
                                     println!("Loaded {} symbol(s) in the environment.", map.len())
                                 }
                                 _ => (),
@@ -681,12 +681,12 @@ pub mod query_print {
         fn print_fields<R: QueryPrinter>(renderer: &R, t: &Term) {
             println!();
             match t {
-                Term::Record(map) | Term::RecRecord(map) if !map.is_empty() => {
+                Term::Record(map, _) | Term::RecRecord(map, _) if !map.is_empty() => {
                     let mut fields: Vec<_> = map.keys().collect();
                     fields.sort();
                     renderer.print_fields(fields.into_iter());
                 }
-                Term::Record(_) | Term::RecRecord(_) => renderer.print_metadata("value", "{}"),
+                Term::Record(..) | Term::RecRecord(..) => renderer.print_metadata("value", "{}"),
                 _ => (),
             }
         }
@@ -746,7 +746,7 @@ pub mod query_print {
                     .iter()
                     .for_each(|rt| print_fields(renderer, rt.as_ref()));
             }
-            t @ Term::Record(_) | t @ Term::RecRecord(_) => {
+            t @ Term::Record(..) | t @ Term::RecRecord(..) => {
                 println!("No metadata found for this value.");
                 print_fields(renderer, &t)
             }
