@@ -423,9 +423,9 @@ pub mod rustyline_frontend {
                                 Term::Record(map, _) => {
                                     println!("Loaded {} symbol(s) in the environment.", map.len())
                                 }
-                                Term::RecRecord(map, interpolated, _) => {
-                                    if !interpolated.is_empty() {
-                                        println!("Warning: loading dynamic fields is currently not supported. {} symbols ignored", interpolated.len());
+                                Term::RecRecord(map, dyn_fields, _) => {
+                                    if !dyn_fields.is_empty() {
+                                        println!("Warning: loading dynamic fields is currently not supported. {} symbols ignored", dyn_fields.len());
                                     }
 
                                     println!("Loaded {} symbol(s) in the environment.", map.len())
@@ -693,11 +693,11 @@ pub mod query_print {
                     fields.sort();
                     renderer.print_fields(fields.into_iter());
                 }
-                Term::RecRecord(map, interpolated, _) if !map.is_empty() => {
+                Term::RecRecord(map, dyn_fields, _) if !map.is_empty() => {
                     let mut fields: Vec<_> = map.keys().collect();
                     fields.sort();
                     let dynamic = Ident::from("<dynamic>");
-                    fields.extend(interpolated.iter().map(|_| &dynamic));
+                    fields.extend(dyn_fields.iter().map(|_| &dynamic));
                     renderer.print_fields(fields.into_iter());
                 }
                 Term::Record(..) | Term::RecRecord(..) => renderer.print_metadata("value", "{}"),
